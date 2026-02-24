@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Catalogue d'Objets</title>
-    <!-- Tailwind CSS pour le style -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
@@ -12,115 +12,155 @@
         .modal-open { overflow: hidden; }
         .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .product-card:hover { transform: translateY(-6px); }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-[#fdfdfd] min-h-screen">
 
     <div id="app" class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <!-- En-tête -->
-        <header class="mb-12 text-center">
+        <header class="mb-12 flex flex-col items-center relative">
+            <button id="openAdminBtn" class="absolute top-0 right-0 bg-slate-900 text-white px-5 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-slate-900/20 hover:bg-slate-800 transition-all flex items-center gap-2 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                </svg>
+                Admin
+            </button>
             <h1 class="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Mon Catalogue</h1>
-            <p class="text-slate-500 font-medium">Découvrez mes objets en vente</p>
+            <p class="text-slate-500 font-medium text-center">Objets sélectionnés avec soin</p>
         </header>
 
-        <!-- Barre de filtres -->
+        <!-- Filtres -->
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-10">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                 <div class="relative group">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Recherche</label>
                     <input type="text" id="searchInput" placeholder="Que cherchez-vous ?" 
-                        class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-slate-300">
+                        class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
                 </div>
                 <div class="relative">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Catégorie</label>
-                    <select id="categoryFilter" class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer">
+                    <select id="categoryFilter" class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none cursor-pointer">
                         <option value="all">Toutes les catégories</option>
                     </select>
                 </div>
                 <div class="relative">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Statut</label>
-                    <select id="statusFilter" class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer">
+                    <select id="statusFilter" class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none cursor-pointer">
                         <option value="all">Tous les statuts</option>
-                        <option value="disponible">Disponible</option>
-                        <option value="réservé">Réservé</option>
-                        <option value="vendu">Vendu</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="Réservé">Réservé</option>
+                        <option value="Vendu">Vendu</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <!-- État de chargement -->
+        <!-- Chargement -->
         <div id="loader" class="flex flex-col items-center justify-center py-32">
             <div class="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-400 font-semibold animate-pulse">Chargement des données JSON...</p>
+            <p class="text-slate-400 font-semibold animate-pulse">Chargement du catalogue...</p>
         </div>
 
-        <!-- Grille de produits -->
-        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            <!-- Injecté via JavaScript -->
-        </div>
+        <!-- Grille -->
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
 
         <!-- Aucun résultat -->
         <div id="noResult" class="hidden text-center py-32">
-            <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </div>
             <p class="text-slate-500 font-semibold text-lg">Aucun objet trouvé.</p>
             <button onclick="resetFilters()" class="mt-2 text-blue-500 font-bold text-sm hover:underline">Réinitialiser les filtres</button>
         </div>
     </div>
 
-    <!-- Modale de Détail -->
-    <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-md">
-        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
-            <button id="closeModal" class="absolute top-6 right-6 bg-white/90 p-3 rounded-full shadow-lg text-slate-900 hover:scale-110 transition-transform z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+    <!-- Modale Détail -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
+        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
+            <button id="closeModal" class="absolute top-6 right-6 bg-white/90 p-3 rounded-full shadow-lg text-slate-900 z-10 hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <div id="modalContent" class="flex flex-col md:flex-row h-full">
-                <!-- Injecté via JavaScript -->
+            <div id="modalContent" class="flex flex-col md:flex-row h-full"></div>
+        </div>
+    </div>
+
+    <!-- Modale Login Admin -->
+    <div id="loginModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl">
+            <h3 class="text-xl font-black text-slate-900 mb-2">Accès Admin</h3>
+            <form id="loginForm" class="space-y-4">
+                <input type="password" id="adminPassword" placeholder="Mot de passe" required class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none">
+                <div class="flex gap-3">
+                    <button type="button" id="cancelLogin" class="flex-1 font-bold text-slate-500">Annuler</button>
+                    <button type="submit" class="flex-1 bg-slate-900 text-white px-5 py-3 rounded-2xl font-bold active:scale-95 transition-all">Valider</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale Formulaire Admin -->
+    <div id="adminModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-black text-slate-900">Ajouter un produit</h2>
+                <button id="closeAdminBtn" class="text-slate-400 hover:text-slate-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
+            <form id="adminForm" class="space-y-4">
+                <input type="text" name="titre" placeholder="Titre *" required class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" name="prix" placeholder="Prix (€) *" required class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                    <input type="text" name="categorie" placeholder="Catégorie *" required class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                </div>
+                <select name="statut" class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                    <option value="Disponible">Disponible</option>
+                    <option value="Réservé">Réservé</option>
+                    <option value="Vendu">Vendu</option>
+                </select>
+                <textarea name="description" placeholder="Description" rows="3" class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100 resize-none"></textarea>
+                <input type="url" name="photo_url" placeholder="URL de la photo" class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                <input type="url" name="lien_leboncoin" placeholder="Lien Leboncoin" class="w-full px-5 py-3 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                <button type="submit" id="submitAdmin" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-blue-700 transition-all">AJOUTER</button>
+            </form>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbyoUUiv0lsfD84HQuIuCMpWo4eJHlTXz11LFDN6ZqzlWkichE4Tjeiyvmf3T8oiG21SyQ/exec';
+        const ADMIN_PASSWORD = 'admin123';
         let products = [];
 
-        // --- Utilitaires ---
-        const getPlaceholder = (text) => `https://placehold.co/600x400/f1f5f9/64748b?text=${encodeURIComponent(text)}`;
+        const isNewProduct = (date_ajout) => {
+            if (!date_ajout) return false;
+            const dateProd = new Date(date_ajout);
+            if (isNaN(dateProd.getTime())) return false;
+            const aujourdhui = new Date();
+            const septJoursEnMs = 7 * 24 * 60 * 60 * 1000;
+            const difference = aujourdhui - dateProd;
+            return difference >= 0 && difference < septJoursEnMs;
+        };
 
         const getStatusStyles = (status) => {
-            const s = status ? status.toLowerCase() : '';
+            const s = (status || '').toLowerCase();
             if (s === 'vendu') return 'bg-rose-50 text-rose-600 border-rose-100';
             if (s === 'réservé') return 'bg-amber-50 text-amber-600 border-amber-100';
             return 'bg-emerald-50 text-emerald-600 border-emerald-100';
         };
 
+        const normalizeImageUrl = (url, fallbackText) => {
+            if (!url) return `https://placehold.co/600x400/f1f5f9/64748b?text=${encodeURIComponent(fallbackText)}`;
+            const s = String(url).trim();
+            if (s.includes("drive.google.com")) {
+                const m = s.match(/id=([^&]+)/) || s.match(/\/d\/([^/]+)/);
+                if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1200`;
+            }
+            return s;
+        };
 
-const normalizeImageUrl = (url, fallbackText) => {
-  if (!url) return getPlaceholder(fallbackText || "Image");
-
-  const s = String(url).trim();
-
-  // Google Drive: /file/d/<ID>/view
-  const m1 = s.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if (m1) return `https://drive.google.com/thumbnail?id=${m1[1]}&sz=w1200`;
-
-  // Google Drive: uc?export=view&id=<ID> (or any drive link containing id=)
-  const m2 = s.match(/[?&]id=([^&]+)/);
-  if (s.includes("drive.google.com") && m2) {
-    return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w1200`;
-  }
-
-  return s;
-};
-
-        // --- Rendu de la grille ---
         const renderGrid = (items) => {
             const grid = document.getElementById('productGrid');
             const noRes = document.getElementById('noResult');
@@ -134,28 +174,26 @@ const normalizeImageUrl = (url, fallbackText) => {
 
             items.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'product-card bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-blue-500/5 cursor-pointer';
+                card.className = 'product-card bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl cursor-pointer flex flex-col h-full group';
                 card.onclick = () => openModal(item);
                 
+                const showNewBadge = isNewProduct(item.date_ajout);
                 const imgUrl = normalizeImageUrl(item.photo_url, item.titre);
                 
                 card.innerHTML = `
-                    <div class="h-64 w-full relative overflow-hidden">
-                        <img src="${imgUrl}" alt="${item.titre}" onerror="this.onerror=null; this.src=\'${getPlaceholder(item.titre)}\';" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-4 right-4">
-                            <span class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter border backdrop-blur-md ${getStatusStyles(item.statut)} shadow-sm">
-                                ${item.statut || 'Disponible'}
-                            </span>
-                        </div>
+                    <div class="h-64 w-full relative overflow-hidden flex-shrink-0">
+                        <img src="${imgUrl}" alt="${item.titre}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/f1f5f9/64748b?text=Image+Indisponible';" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        ${showNewBadge ? `<div class="absolute top-4 left-4"><span class="bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase px-3 py-1.5 shadow-sm">Nouveau</span></div>` : ''}
+                        <div class="absolute top-4 right-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter border backdrop-blur-md ${getStatusStyles(item.statut)} shadow-sm">${item.statut || 'Disponible'}</span></div>
                     </div>
-                    <div class="p-6">
-                        <div class="flex flex-col gap-1 mb-4">
+                    <div class="p-6 flex flex-col justify-between flex-grow">
+                        <div class="mb-4">
                             <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">${item.categorie || 'Objet'}</span>
-                            <h3 class="text-lg font-bold text-slate-800 line-clamp-1">${item.titre}</h3>
+                            <h3 class="text-lg font-bold text-slate-800 truncate">${item.titre}</h3>
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between mt-auto">
                             <span class="text-2xl font-black text-slate-900">${item.prix}€</span>
-                            <span class="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">${item.etat || 'Bon état'}</span>
+                            <span class="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">${item.etat || 'Bon état'}</span>
                         </div>
                     </div>
                 `;
@@ -163,65 +201,31 @@ const normalizeImageUrl = (url, fallbackText) => {
             });
         };
 
-        // --- Modale ---
         const openModal = (item) => {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
-            const imgUrl = normalizeImageUrl(item.photo_url, item.titre);
-
             content.innerHTML = `
-                <div class="w-full md:w-1/2 h-80 md:h-[600px]">
-                    <img src="${imgUrl}" alt="${item.titre}" onerror="this.onerror=null; this.src=\'${getPlaceholder(item.titre)}\';" class="w-full h-full object-cover">
+                <div class="w-full md:w-1/2 h-80 md:min-h-[500px]">
+                    <img src="${normalizeImageUrl(item.photo_url, item.titre)}" class="w-full h-full object-cover">
                 </div>
-                <div class="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-between">
+                <div class="w-full md:w-1/2 p-8 flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center gap-3 mb-6">
-                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyles(item.statut)}">
-                                ${item.statut || 'Disponible'}
-                            </span>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${item.categorie || 'Divers'}</span>
-                        </div>
-                        
-                        <h2 class="text-3xl font-extrabold text-slate-900 leading-tight mb-2">${item.titre}</h2>
-                        <p class="text-4xl font-black text-blue-600 mb-8">${item.prix}€</p>
-                        
-                        <div class="space-y-6 mb-10">
-                            <div>
-                                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">État de l'objet</h4>
-                                <p class="text-slate-700 font-semibold">${item.etat || 'Non précisé'}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Description</h4>
-                                <p class="text-slate-600 leading-relaxed">${item.description || "Pas de description détaillée pour cet article."}</p>
-                            </div>
-                        </div>
+                        <h2 class="text-3xl font-extrabold text-slate-900 mb-2">${item.titre}</h2>
+                        <p class="text-4xl font-black text-blue-600 mb-6">${item.prix}€</p>
+                        <p class="text-slate-600 leading-relaxed mb-6">${item.description || "Aucune description."}</p>
                     </div>
-
-                    <a href="${item.lien_leboncoin || '#'}" target="_blank" 
-                       class="flex items-center justify-center gap-3 w-full bg-[#f56b2a] hover:bg-[#ff7e42] text-white font-black py-5 rounded-[1.5rem] shadow-2xl shadow-orange-500/20 transition-all hover:-translate-y-1 active:scale-[0.98]">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 14H8c-.55 0-1-.45-1-1s.45-1 1-1h8.5c.55 0 1 .45 1 1s-.45 1-1 1z"/></svg>
-                        VOIR SUR LEBONCOIN
-                    </a>
+                    <a href="${item.lien_leboncoin || '#'}" target="_blank" class="bg-[#f56b2a] text-white font-black py-4 rounded-2xl text-center shadow-lg hover:bg-[#ff7e42] transition-colors uppercase tracking-widest">Voir sur Leboncoin</a>
                 </div>
             `;
-
             modal.classList.remove('hidden');
             document.body.classList.add('modal-open');
         };
 
-        // --- Filtrage ---
         const filterProducts = () => {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
-            const status = document.getElementById('statusFilter').value;
-
-            const filtered = products.filter(p => {
-                const matchesSearch = p.titre.toLowerCase().includes(search) || (p.description && p.description.toLowerCase().includes(search));
-                const matchesCat = category === 'all' || p.categorie === category;
-                const matchesStatus = status === 'all' || (p.statut && p.statut.toLowerCase() === status.toLowerCase());
-                return matchesSearch && matchesCat && matchesStatus;
-            });
-
+            const s = document.getElementById('searchInput').value.toLowerCase();
+            const c = document.getElementById('categoryFilter').value;
+            const st = document.getElementById('statusFilter').value;
+            const filtered = products.filter(p => (p.titre.toLowerCase().includes(s)) && (c === 'all' || p.categorie === c) && (st === 'all' || (p.statut || 'Disponible') === st));
             renderGrid(filtered);
         };
 
@@ -232,58 +236,56 @@ const normalizeImageUrl = (url, fallbackText) => {
             renderGrid(products);
         };
 
-        // --- Initialisation ---
         const init = async () => {
             try {
                 const response = await fetch(API_URL);
-                const data = await response.json();
-                
-                // On suppose que le JSON est un tableau d'objets ou un objet avec une clé contenant le tableau
-                products = Array.isArray(data) ? data : (data.products || data.data || []);
-
-                // Remplissage dynamique des catégories
-                const categories = [...new Set(products.map(p => p.categorie).filter(Boolean))];
+                products = await response.json();
                 const catSelect = document.getElementById('categoryFilter');
+                const categories = [...new Set(products.map(p => p.categorie).filter(Boolean))];
                 categories.forEach(cat => {
                     const opt = document.createElement('option');
-                    opt.value = cat;
-                    opt.textContent = cat;
+                    opt.value = cat; opt.textContent = cat;
                     catSelect.appendChild(opt);
                 });
-
                 document.getElementById('loader').classList.add('hidden');
                 renderGrid(products);
-            } catch (error) {
-                console.error('Erreur de chargement JSON:', error);
-                document.getElementById('loader').innerHTML = `
-                    <div class="text-center p-8 bg-red-50 rounded-3xl border border-red-100 max-w-md mx-auto">
-                        <p class="text-red-600 font-bold mb-2">Erreur de connexion</p>
-                        <p class="text-red-400 text-xs italic">Impossible de récupérer les données depuis l'API Google Script.</p>
-                    </div>
-                `;
+            } catch (e) {
+                document.getElementById('loader').innerHTML = `<p class="text-rose-500 font-bold">Erreur de chargement.</p>`;
             }
         };
 
-        // --- Event Listeners ---
-        document.getElementById('searchInput').addEventListener('input', filterProducts);
-        document.getElementById('categoryFilter').addEventListener('change', filterProducts);
-        document.getElementById('statusFilter').addEventListener('change', filterProducts);
+        document.getElementById('openAdminBtn').onclick = () => { document.getElementById('loginModal').classList.remove('hidden'); document.body.classList.add('modal-open'); };
+        document.getElementById('cancelLogin').onclick = () => { document.getElementById('loginModal').classList.add('hidden'); document.body.classList.remove('modal-open'); };
 
-        document.getElementById('closeModal').addEventListener('click', () => {
-            document.getElementById('detailModal').classList.add('hidden');
-            document.body.classList.remove('modal-open');
-        });
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('adminModal').classList.remove('hidden');
+            } else { alert("Accès refusé."); }
+        };
 
-        // Fermeture au clic à l'extérieur
-        window.onclick = (event) => {
-            const modal = document.getElementById('detailModal');
-            if (event.target == modal) {
-                modal.classList.add('hidden');
+        document.getElementById('closeAdminBtn').onclick = () => { document.getElementById('adminModal').classList.add('hidden'); document.body.classList.remove('modal-open'); };
+
+        document.getElementById('adminForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitAdmin');
+            btn.disabled = true; btn.textContent = "ENVOI...";
+            try {
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)).toString() });
+                e.target.reset();
+                document.getElementById('adminModal').classList.add('hidden');
                 document.body.classList.remove('modal-open');
-            }
+                setTimeout(init, 1000);
+            } catch (err) { alert("Erreur."); }
+            finally { btn.disabled = false; btn.textContent = "AJOUTER"; }
         };
 
-        // Lancement
+        document.getElementById('searchInput').oninput = filterProducts;
+        document.getElementById('categoryFilter').onchange = filterProducts;
+        document.getElementById('statusFilter').onchange = filterProducts;
+        document.getElementById('closeModal').onclick = () => { document.getElementById('detailModal').classList.add('hidden'); document.body.classList.remove('modal-open'); };
+
         init();
     </script>
 </body>
