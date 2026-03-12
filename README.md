@@ -11,3 +11,5 @@ Partage : Un bouton de partage dans la modale permet d'envoyer le lien de l'appl
 Mode Sombre : L'interface s'adapte désormais automatiquement si l'utilisateur est en mode sombre sur son téléphone ou ordinateur.
 
 Animations : Les cartes glissent légèrement au survol et la modale apparaît avec un effet d'échelle fluide. */
+/*mise à jour 12 March 2026
+Le point clé de cette version, c’est que plusieurs photos sont gérées dans une seule cellule photo_url, séparées par des virgules. */
