@@ -14,5 +14,5 @@ Animations : Les cartes glissent légèrement au survol et la modale apparaît a
 /*mise à jour 12 March 2026
 Le point clé de cette version, c’est que plusieurs photos sont gérées dans une seule cellule photo_url, séparées par des virgules. */
 /*mise à jour 12 March 2026
-Changement titre et couleur
+Changement titre et couleur + rajout new fonctionalité si une raquette possède plusieurs photos, de petits points apparaissent au survol de l'image sur la page d'accueil. Vous pouvez cliquer sur ces points pour changer la photo directement depuis la grille, sans avoir à ouvrir la fiche détaillée.
 */
