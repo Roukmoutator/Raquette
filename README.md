@@ -13,3 +13,6 @@ Mode Sombre : L'interface s'adapte désormais automatiquement si l'utilisateur e
 Animations : Les cartes glissent légèrement au survol et la modale apparaît avec un effet d'échelle fluide. */
 /*mise à jour 12 March 2026
 Le point clé de cette version, c’est que plusieurs photos sont gérées dans une seule cellule photo_url, séparées par des virgules. */
+/*mise à jour 12 March 2026
+Changement titre et couleur
+*/
