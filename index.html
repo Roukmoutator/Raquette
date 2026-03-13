@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Les Raquettes d'Anne C - Catalogue</title>
+    <title>Encordées - Boutique de Raquettes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
@@ -19,7 +19,6 @@
 
         .modal-open { overflow: hidden; }
 
-        /* Animation du titre dynamique */
         .dynamic-title {
             background: linear-gradient(300deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
             background-size: 400% 400%;
@@ -56,19 +55,46 @@
 
         .thumb-active { border-color: #8b5cf6 !important; transform: scale(0.95); }
 
-        /* Pagination des images sur la carte */
         .img-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.2);
             transition: all 0.2s;
             cursor: pointer;
         }
         .img-dot.active {
-            background: white;
+            background: #8b5cf6;
             transform: scale(1.3);
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* Share Menu Animation */
+        #shareMenu {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(10px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        #shareMenu.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Improved Image Handling */
+        .img-container {
+            background-color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .full-visible-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensures nothing is cut off */
+            padding: 1rem;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -76,16 +102,16 @@
             .glass { background: rgba(15, 23, 42, 0.8); }
             .bg-white { background-color: #1e293b; }
             .text-slate-900 { color: #f8fafc; }
+            .img-container { background-color: #0f172a; }
         }
     </style>
 </head>
 <body class="bg-[#fdfdfd] min-h-screen">
 
     <div id="app" class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <!-- En-tête -->
         <header class="mb-12 flex flex-col items-center relative">
             <div class="w-full flex justify-between items-start mb-6">
-                <button id="showFavsBtn" class="bg-white border border-slate-200 p-2.5 rounded-2xl shadow-sm hover:bg-rose-50 hover:border-rose-100 transition-all group">
+                <button id="showFavsBtn" class="bg-white border border-slate-200 p-2.5 rounded-2xl shadow-sm hover:bg-rose-50 hover:border-rose-100 transition-all group" title="Voir mes favoris">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-rose-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
@@ -95,93 +121,121 @@
                     <span>Admin</span>
                 </button>
             </div>
-            <h1 class="text-5xl md:text-6xl font-black text-slate-900 mb-2 tracking-tight dynamic-title">Les Raquettes d'Anne C</h1>
-            <p class="text-slate-500 font-medium text-center">Une sélection d'objets uniques et premium</p>
+            <h1 class="text-5xl md:text-7xl font-black text-slate-900 mb-2 tracking-tighter dynamic-title">Encordées</h1>
+            <p class="text-slate-500 font-semibold text-center tracking-wide uppercase text-sm">Sélection Premium & Objets Uniques</p>
         </header>
 
-        <!-- Barre de Filtres -->
         <div class="glass sticky top-6 z-40 p-4 rounded-[2rem] shadow-xl border border-white/20 mb-10">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <input type="text" id="searchInput" placeholder="Rechercher une raquette..." class="w-full px-6 py-3 bg-white/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Chercher un modèle..." class="w-full px-6 py-3 bg-white/50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all">
                 <div class="flex gap-2">
-                    <select id="categoryFilter" class="flex-1 px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl outline-none cursor-pointer text-sm font-semibold"><option value="all">Catégories</option></select>
+                    <select id="categoryFilter" class="flex-1 px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl outline-none cursor-pointer text-sm font-semibold"><option value="all">Marques</option></select>
                     <select id="statusFilter" class="flex-1 px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl outline-none cursor-pointer text-sm font-semibold">
                         <option value="all">Statut</option><option value="Disponible">Disponible</option><option value="Réservé">Réservé</option><option value="Vendu">Vendu</option>
                     </select>
                 </div>
-                <button onclick="resetFilters()" class="text-sm font-bold text-slate-400 hover:text-purple-600 transition-colors">Réinitialiser</button>
+                <button onclick="resetFilters()" class="text-sm font-bold text-slate-400 hover:text-purple-600 transition-colors">Tout effacer</button>
             </div>
         </div>
 
-        <div id="loader" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"><div class="rounded-3xl h-96 skeleton"></div><div class="rounded-3xl h-96 skeleton"></div></div>
+        <div id="loader" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"><div class="rounded-3xl h-96 skeleton"></div><div class="rounded-3xl h-96 skeleton"></div><div class="rounded-3xl h-96 skeleton"></div><div class="rounded-3xl h-96 skeleton"></div></div>
         <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
-        <div id="noResult" class="hidden text-center py-32 text-slate-500 font-bold text-lg">Aucune raquette trouvée.</div>
+        <div id="noResult" class="hidden text-center py-32 text-slate-500 font-bold text-lg">Aucune raquette ne correspond à votre recherche.</div>
     </div>
 
-    <!-- Modale Détail -->
+    <!-- Modal Detail -->
     <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-opacity">
-        <div class="bg-white w-full max-w-5xl rounded-[3rem] shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto transform transition-transform scale-95" id="modalContainer">
-            <div class="flex flex-col md:flex-row h-full">
+        <div class="bg-white w-full max-w-5xl rounded-[3rem] shadow-2xl overflow-hidden relative max-h-[95vh] overflow-y-auto transform transition-transform scale-95" id="modalContainer">
+            <div class="flex flex-col md:flex-row min-h-[500px]">
                 <!-- Section Image Galerie -->
-                <div class="w-full md:w-3/5 relative flex flex-col bg-slate-50">
-                    <div class="flex-grow flex items-center justify-center overflow-hidden h-[400px] md:h-[600px]">
-                        <img id="modalImg" src="" class="w-full h-full object-cover">
+                <div class="w-full md:w-3/5 relative flex flex-col bg-slate-50 border-r border-slate-100">
+                    <div class="flex-grow img-container h-[450px] md:h-[650px]">
+                        <img id="modalImg" src="" class="full-visible-img">
                     </div>
-                    <div id="modalGallery" class="flex gap-2 p-4 overflow-x-auto bg-white/80 backdrop-blur-md border-t border-slate-100"></div>
-                    <button id="closeModal" class="absolute top-6 left-6 bg-white/90 p-3 rounded-full shadow-lg text-slate-900 hover:scale-110 transition-transform">
+                    <div id="modalGallery" class="flex gap-3 p-4 overflow-x-auto bg-white/50 backdrop-blur-sm"></div>
+                    <button id="closeModal" class="absolute top-6 left-6 bg-white/90 p-3 rounded-full shadow-lg text-slate-900 hover:scale-110 transition-transform z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                     </button>
                 </div>
-                <!-- Section Contenu -->
-                <div class="w-full md:w-2/5 p-10 flex flex-col">
-                    <span id="modalCat" class="text-xs font-black text-purple-600 uppercase tracking-widest mb-2"></span>
-                    <h2 id="modalTitle" class="text-4xl font-black text-slate-900 mb-2 leading-tight"></h2>
+                <!-- Section Content -->
+                <div class="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center">
+                    <span id="modalCat" class="text-xs font-black text-purple-600 uppercase tracking-widest mb-3"></span>
+                    <h2 id="modalTitle" class="text-3xl md:text-4xl font-black text-slate-900 mb-4 leading-tight"></h2>
                     <div id="modalPrice" class="text-4xl font-light text-slate-400 mb-8"></div>
-                    <p id="modalDesc" class="text-slate-600 leading-relaxed text-lg mb-8 flex-grow"></p>
-                    <div class="space-y-3">
-                        <a id="modalLBCLink" href="#" target="_blank" class="block w-full bg-[#f56b2a] text-white font-black py-5 rounded-3xl text-center shadow-lg hover:bg-[#ff7e42] transition-all uppercase tracking-widest text-sm">Voir sur Leboncoin</a>
-                        <button onclick="toggleFavoriteCurrent()" id="modalFavBtn" class="w-full bg-slate-100 text-slate-900 font-bold py-4 rounded-3xl transition-all flex items-center justify-center gap-2">Favoris</button>
+                    <div class="prose prose-slate mb-10">
+                        <p id="modalDesc" class="text-slate-600 leading-relaxed text-lg"></p>
+                    </div>
+                    
+                    <div class="space-y-4 mt-auto">
+                        <a id="modalLBCLink" href="#" target="_blank" class="block w-full bg-[#f56b2a] text-white font-black py-5 rounded-3xl text-center shadow-lg hover:bg-[#ff7e42] transition-all uppercase tracking-widest text-sm active:scale-95">Voir sur Leboncoin</a>
+                        
+                        <div class="flex gap-4">
+                            <button onclick="toggleFavoriteCurrent()" id="modalFavBtn" class="flex-1 bg-slate-100 text-slate-900 font-bold py-4 rounded-3xl transition-all flex items-center justify-center gap-2 hover:bg-slate-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                <span>Favori</span>
+                            </button>
+                            
+                            <div class="flex-1 relative">
+                                <button onclick="toggleShareMenu(event)" class="w-full bg-slate-900 text-white font-bold py-4 rounded-3xl transition-all flex items-center justify-center gap-2 hover:bg-slate-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                    <span>Partager</span>
+                                </button>
+                                
+                                <!-- Menu Partage -->
+                                <div id="shareMenu" class="absolute bottom-full left-0 right-0 mb-4 bg-white rounded-3xl shadow-2xl border border-slate-100 p-3 z-50 flex flex-col gap-1">
+                                    <button onclick="share('whatsapp')" class="flex items-center gap-3 p-4 hover:bg-slate-50 rounded-2xl transition-colors text-sm font-semibold text-slate-700">
+                                        <span class="text-xl">📱</span> WhatsApp
+                                    </button>
+                                    <button onclick="share('email')" class="flex items-center gap-3 p-4 hover:bg-slate-50 rounded-2xl transition-colors text-sm font-semibold text-slate-700">
+                                        <span class="text-xl">✉️</span> Email
+                                    </button>
+                                    <button onclick="share('sms')" class="flex items-center gap-3 p-4 hover:bg-slate-50 rounded-2xl transition-colors text-sm font-semibold text-slate-700">
+                                        <span class="text-xl">💬</span> SMS
+                                    </button>
+                                    <button onclick="share('copy')" class="flex items-center gap-3 p-4 hover:bg-slate-50 rounded-2xl transition-colors text-sm font-semibold text-slate-700 border-t border-slate-50 mt-1">
+                                        <span class="text-xl">🔗</span> Copier le lien
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modale Login Admin -->
+    <!-- Admin Login Modal -->
     <div id="loginModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl">
-            <h3 class="text-2xl font-black text-slate-900 mb-6">Accès Admin</h3>
+            <h3 class="text-2xl font-black text-slate-900 mb-6">Accès Encordées</h3>
             <form id="loginForm" class="space-y-4">
                 <input type="password" id="adminPassword" placeholder="Mot de passe" required class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-purple-500">
                 <div class="flex gap-4 pt-2">
                     <button type="button" id="cancelLogin" class="flex-1 font-bold text-slate-400">Retour</button>
-                    <button type="submit" class="flex-1 bg-slate-900 text-white px-5 py-4 rounded-2xl font-bold">Connexion</button>
+                    <button type="submit" class="flex-1 bg-slate-900 text-white px-5 py-4 rounded-2xl font-bold">Entrer</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modale Formulaire Admin -->
+    <!-- Admin Form Modal -->
     <div id="adminModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
         <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl p-10 max-h-[90vh] overflow-y-auto relative">
             <button id="closeAdminBtn" class="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <h2 class="text-3xl font-black mb-8 text-slate-900">Ajouter une raquette</h2>
+            <h2 class="text-3xl font-black mb-8 text-slate-900">Nouvelle Encordée</h2>
             <form id="adminForm" class="space-y-5">
                 <input type="text" name="titre" placeholder="Modèle de la raquette" required class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none">
                 <div class="grid grid-cols-2 gap-4">
                     <input type="number" name="prix" placeholder="Prix (€)" required class="w-full px-6 py-4 bg-slate-50 rounded-2xl outline-none border border-slate-100">
-                    <input type="text" name="categorie" placeholder="Catégorie (ex: Wilson, Babolat)" required class="w-full px-6 py-4 bg-slate-50 rounded-2xl outline-none border border-slate-100">
+                    <input type="text" name="categorie" placeholder="Marque" required class="w-full px-6 py-4 bg-slate-50 rounded-2xl outline-none border border-slate-100">
                 </div>
                 <select name="statut" class="w-full px-6 py-4 bg-slate-50 rounded-2xl outline-none border border-slate-100"><option value="Disponible">Disponible</option><option value="Réservé">Réservé</option><option value="Vendu">Vendu</option></select>
-                <textarea name="description" placeholder="Détails (poids, tamis, cordage...)" rows="3" class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none resize-none"></textarea>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Lien photos (séparés par une virgule)</label>
-                    <textarea name="photo_url" placeholder="URL Image 1, URL Image 2..." class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none resize-none" rows="2"></textarea>
-                </div>
-                <input type="url" name="lien_leboncoin" placeholder="Lien vers l'annonce Leboncoin" class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none">
-                <button type="submit" id="submitAdmin" class="w-full bg-purple-600 text-white font-black py-5 rounded-3xl shadow-xl hover:bg-purple-700 transition-all">PUBLIER L'ANNONCE</button>
+                <textarea name="description" placeholder="Spécifications techniques..." rows="3" class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none resize-none"></textarea>
+                <textarea name="photo_url" placeholder="URLs des photos (séparées par une virgule)" class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none resize-none" rows="2"></textarea>
+                <input type="url" name="lien_leboncoin" placeholder="Lien Leboncoin" class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none">
+                <button type="submit" id="submitAdmin" class="w-full bg-purple-600 text-white font-black py-5 rounded-3xl shadow-xl hover:bg-purple-700 transition-all uppercase tracking-widest">Ajouter au catalogue</button>
             </form>
         </div>
     </div>
@@ -195,12 +249,12 @@
         let showOnlyFavs = false;
 
         const getPhotosArray = (urlStr, title) => {
-            if (!urlStr || urlStr.trim() === "") return [`https://placehold.co/800x600/f1f5f9/64748b?text=${encodeURIComponent(title)}`];
+            if (!urlStr || urlStr.trim() === "") return [`https://placehold.co/800x1200/f1f5f9/64748b?text=${encodeURIComponent(title)}`];
             return urlStr.split(',').map(url => url.trim()).filter(url => url !== "");
         };
 
         const normalizeImageUrl = (url, title) => {
-            if (!url) return `https://placehold.co/800x600/f1f5f9/64748b?text=${encodeURIComponent(title || 'Image')}`;
+            if (!url) return `https://placehold.co/800x1200/f1f5f9/64748b?text=${encodeURIComponent(title || 'Image')}`;
             if (url.includes("drive.google.com")) {
                 const id = url.match(/id=([^&]+)/)?.[1] || url.match(/\/d\/([^/]+)/)?.[1];
                 return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1200` : url;
@@ -220,26 +274,6 @@
             return 'bg-emerald-50 text-emerald-600 border-emerald-100';
         };
 
-        // Fonction pour changer l'image d'une carte sans ouvrir la modale
-        window.changeCardImage = (event, productId, photoIdx) => {
-            event.stopPropagation();
-            const product = products.find(p => p.titre === productId);
-            if (!product) return;
-            
-            const photos = getPhotosArray(product.photo_url, product.titre);
-            const imgEl = document.getElementById(`img-${productId.replace(/\s+/g, '-')}`);
-            if (imgEl) {
-                imgEl.src = normalizeImageUrl(photos[photoIdx], product.titre);
-            }
-
-            // Mettre à jour les points
-            const dotContainer = event.target.parentElement;
-            Array.from(dotContainer.children).forEach((dot, idx) => {
-                if (idx === photoIdx) dot.classList.add('active');
-                else dot.classList.remove('active');
-            });
-        };
-
         const renderGrid = (items) => {
             const grid = document.getElementById('productGrid');
             const noRes = document.getElementById('noResult');
@@ -256,10 +290,9 @@
                 const titleForId = item.titre.replace(/\s+/g, '-');
                 const titleForJs = item.titre.replace(/'/g, "\\'");
                 
-                // Générer les points de navigation si plusieurs photos
                 let dotsHtml = '';
                 if (photos.length > 1) {
-                    dotsHtml = `<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">`;
+                    dotsHtml = `<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 bg-white/60 backdrop-blur-md px-2 py-1.5 rounded-full">`;
                     photos.forEach((_, idx) => {
                         dotsHtml += `<div class="img-dot ${idx === 0 ? 'active' : ''}" onclick="changeCardImage(event, '${titleForJs}', ${idx})"></div>`;
                     });
@@ -267,20 +300,20 @@
                 }
 
                 card.innerHTML = `
-                    <div class="h-72 w-full relative overflow-hidden flex-shrink-0 cursor-pointer" onclick="openModal('${titleForJs}')">
-                        <img id="img-${titleForId}" src="${normalizeImageUrl(photos[0], item.titre)}" class="h-full w-full object-cover transition-all duration-700" loading="lazy">
+                    <div class="h-80 w-full relative overflow-hidden flex-shrink-0 cursor-pointer img-container" onclick="openModal('${titleForJs}')">
+                        <img id="img-${titleForId}" src="${normalizeImageUrl(photos[0], item.titre)}" class="full-visible-img transition-all duration-700 hover:scale-105" loading="lazy">
                         ${dotsHtml}
                         ${isNewProduct(item.date_ajout) ? `<div class="absolute top-4 left-4"><span class="bg-purple-600 text-white rounded-full text-[9px] font-black uppercase px-3 py-1.5 shadow-lg">Nouveau</span></div>` : ''}
                         <div class="absolute top-4 right-4"><span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase border glass ${getStatusStyles(item.statut)}">${item.statut || 'Disponible'}</span></div>
                     </div>
-                    <button onclick="toggleFavorite('${titleForJs}')" class="absolute top-[260px] right-6 z-10 bg-white p-3 rounded-2xl shadow-xl hover:scale-110 active:scale-90 transition-all border border-slate-50">
+                    <button onclick="toggleFavorite('${titleForJs}')" class="absolute top-[290px] right-6 z-10 bg-white p-3 rounded-2xl shadow-xl hover:scale-110 active:scale-90 transition-all border border-slate-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ${isFav ? 'fill-rose-500 text-rose-500' : 'text-slate-300'}" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                     </button>
                     <div class="p-8 pt-6 flex flex-col justify-between flex-grow cursor-pointer" onclick="openModal('${titleForJs}')">
                         <div>
-                            <span class="text-[10px] font-bold text-purple-600 uppercase tracking-widest">${item.categorie || 'Raquette'}</span>
+                            <span class="text-[10px] font-bold text-purple-600 uppercase tracking-widest">${item.categorie || 'Encordée'}</span>
                             <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2 line-clamp-1">${item.titre}</h3>
-                            <p class="text-slate-500 text-sm line-clamp-2 leading-relaxed">${item.description || "Aucune description."}</p>
+                            <p class="text-slate-500 text-sm line-clamp-2 leading-relaxed">${item.description || "Détails à venir."}</p>
                         </div>
                         <div class="flex items-center justify-between mt-6">
                             <span class="text-3xl font-light text-slate-900">${item.prix}€</span>
@@ -300,36 +333,73 @@
             const mainImg = document.getElementById('modalImg');
             const gallery = document.getElementById('modalGallery');
             
-            // On s'assure de réinitialiser à la première photo au chargement de la modale
             mainImg.src = normalizeImageUrl(photos[0], currentItem.titre);
             gallery.innerHTML = '';
             if (photos.length > 1) {
                 gallery.classList.remove('hidden');
                 photos.forEach((url, i) => {
                     const thumb = document.createElement('div');
-                    thumb.className = `w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 ${i === 0 ? 'thumb-active border-purple-500 shadow-sm' : 'border-transparent shadow-none'}`;
-                    thumb.innerHTML = `<img src="${normalizeImageUrl(url, currentItem.titre)}" class="w-full h-full object-cover">`;
+                    thumb.className = `w-20 h-20 rounded-xl overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 bg-slate-100 ${i === 0 ? 'thumb-active border-purple-500 shadow-sm' : 'border-transparent opacity-60'}`;
+                    thumb.innerHTML = `<img src="${normalizeImageUrl(url, currentItem.titre)}" class="w-full h-full object-contain p-1">`;
                     thumb.onclick = () => {
                         mainImg.src = normalizeImageUrl(url, currentItem.titre);
                         Array.from(gallery.children).forEach(c => {
-                            c.classList.remove('thumb-active', 'border-purple-500', 'shadow-sm');
-                            c.classList.add('border-transparent');
+                            c.classList.remove('thumb-active', 'border-purple-500', 'shadow-sm', 'opacity-100');
+                            c.classList.add('border-transparent', 'opacity-60');
                         });
-                        thumb.classList.add('thumb-active', 'border-purple-500', 'shadow-sm');
+                        thumb.classList.add('thumb-active', 'border-purple-500', 'shadow-sm', 'opacity-100');
+                        thumb.classList.remove('opacity-60');
                     };
                     gallery.appendChild(thumb);
                 });
             } else gallery.classList.add('hidden');
 
-            document.getElementById('modalCat').textContent = currentItem.categorie || "RAQUETTE";
+            document.getElementById('modalCat').textContent = currentItem.categorie || "ENCORDÉE";
             document.getElementById('modalTitle').textContent = currentItem.titre;
             document.getElementById('modalPrice').textContent = currentItem.prix + "€";
-            document.getElementById('modalDesc').textContent = currentItem.description || "Aucune description.";
+            document.getElementById('modalDesc').textContent = currentItem.description || "Aucune description disponible pour le moment.";
             document.getElementById('modalLBCLink').href = currentItem.lien_leboncoin || "#";
             updateModalFavBtn();
+            
+            document.getElementById('shareMenu').classList.remove('active');
             document.getElementById('detailModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('modalContainer').classList.replace('scale-95', 'scale-100'), 10);
             document.body.classList.add('modal-open');
+        };
+
+        const toggleShareMenu = (e) => {
+            e.stopPropagation();
+            document.getElementById('shareMenu').classList.toggle('active');
+        };
+
+        const share = (platform) => {
+            if (!currentItem) return;
+            const text = `Regarde cette raquette chez Encordées : ${currentItem.titre} (${currentItem.prix}€)`;
+            const url = currentItem.lien_leboncoin || window.location.href;
+            
+            switch(platform) {
+                case 'whatsapp':
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+                    break;
+                case 'email':
+                    window.location.href = `mailto:?subject=${encodeURIComponent('Raquette Encordées : ' + currentItem.titre)}&body=${encodeURIComponent(text + '\n\nLien : ' + url)}`;
+                    break;
+                case 'sms':
+                    window.location.href = `sms:?body=${encodeURIComponent(text + ' ' + url)}`;
+                    break;
+                case 'copy':
+                    const dummy = document.createElement('input');
+                    document.body.appendChild(dummy);
+                    dummy.value = url;
+                    dummy.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(dummy);
+                    const btn = document.querySelector('#shareMenu button:last-child');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<span class="text-xl">✅</span> Copié !';
+                    setTimeout(() => btn.innerHTML = originalText, 2000);
+                    break;
+            }
         };
 
         const toggleFavorite = (title) => {
@@ -343,7 +413,23 @@
 
         const updateModalFavBtn = () => {
             const isFav = favorites.includes(currentItem.titre);
-            document.getElementById('modalFavBtn').innerHTML = isFav ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 fill-rose-500 text-rose-500" viewBox="0 0 24 24" stroke="currentColor"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg> Retirer` : `Ajouter aux favoris`;
+            document.getElementById('modalFavBtn').innerHTML = isFav ? 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 fill-rose-500 text-rose-500" viewBox="0 0 24 24" stroke="currentColor"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg> <span>Retirer</span>` : 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg> <span>Favori</span>`;
+        };
+
+        window.changeCardImage = (event, productId, photoIdx) => {
+            event.stopPropagation();
+            const product = products.find(p => p.titre === productId);
+            if (!product) return;
+            const photos = getPhotosArray(product.photo_url, product.titre);
+            const imgEl = document.getElementById(`img-${productId.replace(/\s+/g, '-')}`);
+            if (imgEl) imgEl.src = normalizeImageUrl(photos[photoIdx], product.titre);
+            const dotContainer = event.target.parentElement;
+            Array.from(dotContainer.children).forEach((dot, idx) => {
+                if (idx === photoIdx) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
         };
 
         const filterProducts = () => {
@@ -379,7 +465,7 @@
                 });
                 document.getElementById('loader').classList.add('hidden');
                 renderGrid(products);
-            } catch (e) { document.getElementById('loader').innerHTML = "<div class='text-slate-400 font-bold'>Impossible de charger les données.</div>"; }
+            } catch (e) { document.getElementById('loader').innerHTML = "<div class='text-slate-400 font-bold col-span-full text-center'>Erreur de chargement.</div>"; }
         };
 
         document.getElementById('showFavsBtn').onclick = function() {
@@ -397,25 +483,32 @@
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('adminModal').classList.remove('hidden');
                 document.getElementById('adminPassword').value = '';
-            } else alert("Erreur d'accès.");
+            } else alert("Accès refusé.");
         };
         document.getElementById('closeAdminBtn').onclick = () => document.getElementById('adminModal').classList.add('hidden');
         document.getElementById('adminForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitAdmin');
-            btn.disabled = true; btn.textContent = "ENVOI...";
+            btn.disabled = true; btn.textContent = "ENVOI EN COURS...";
             try {
                 const formData = new FormData(e.target);
                 await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(formData).toString() });
                 e.target.reset(); document.getElementById('adminModal').classList.add('hidden');
                 setTimeout(init, 2000);
             } catch (err) { alert("Erreur d'envoi."); }
-            finally { btn.disabled = false; btn.textContent = "PUBLIER L'ANNONCE"; }
+            finally { btn.disabled = false; btn.textContent = "AJOUTER AU CATALOGUE"; }
         };
 
         document.getElementById('searchInput').oninput = filterProducts;
         document.getElementById('categoryFilter').onchange = filterProducts;
         document.getElementById('statusFilter').onchange = filterProducts;
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#shareMenu') && !e.target.closest('button')) {
+                document.getElementById('shareMenu').classList.remove('active');
+            }
+        });
+
         document.getElementById('closeModal').onclick = () => {
             document.getElementById('modalContainer').classList.replace('scale-100', 'scale-95');
             setTimeout(() => { document.getElementById('detailModal').classList.add('hidden'); document.body.classList.remove('modal-open'); }, 200);
