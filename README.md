@@ -16,3 +16,18 @@ Le point clé de cette version, c’est que plusieurs photos sont gérées dans 
 /*mise à jour 12 March 2026
 Changement titre et couleur + rajout new fonctionalité si une raquette possède plusieurs photos, de petits points apparaissent au survol de l'image sur la page d'accueil. Vous pouvez cliquer sur ces points pour changer la photo directement depuis la grille, sans avoir à ouvrir la fiche détaillée.
 */
+/*mise à jour 12 March 2026
+Améliorations spécifiques effectuées :
+Filtres Horizontaux : Sur mobile, les sélecteurs de marque et de statut sont désormais côte à côte dans une zone défilante horizontalement. Cela libère une place précieuse pour le contenu.
+
+Navigation Tactile (Swipe) : Dans la fiche produit, vous pouvez maintenant glisser votre doigt vers la gauche ou la droite sur la photo pour faire défiler les images, avec un petit indicateur visuel discret "Swipe" qui apparaît si plusieurs photos existent.
+
+Boutons "Pouce-Friendly" :
+
+Les boutons d'action (Leboncoin, Favoris, Partager) sont désormais plus hauts (plus de surface de clic).
+
+Sur mobile, la modale glisse depuis le bas (style "Bottom Sheet") pour être plus proche des doigts.
+
+Partage Natif : Si l'utilisateur est sur un smartphone, cliquer sur "Partager" ouvrira le menu système du téléphone (permettant d'envoyer vers Instagram, Messenger, WhatsApp, etc. sans passer par notre menu personnalisé). S'il est sur ordinateur, le menu classique s'affiche.
+
+Optimisation Visuelle : J'ai ajouté un support pour le mode sombre (dark mode) et affiné les arrondis pour un aspect encore plus moderne.*/
