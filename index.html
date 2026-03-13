@@ -56,6 +56,21 @@
 
         .thumb-active { border-color: #8b5cf6 !important; transform: scale(0.95); }
 
+        /* Pagination des images sur la carte */
+        .img-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .img-dot.active {
+            background: white;
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
         @media (prefers-color-scheme: dark) {
             body { background-color: #020617; color: #f8fafc; }
             .glass { background: rgba(15, 23, 42, 0.8); }
@@ -80,7 +95,6 @@
                     <span>Admin</span>
                 </button>
             </div>
-            <!-- Titre modifié avec classe dynamique -->
             <h1 class="text-5xl md:text-6xl font-black text-slate-900 mb-2 tracking-tight dynamic-title">Les Raquettes d'Anne C</h1>
             <p class="text-slate-500 font-medium text-center">Une sélection d'objets uniques et premium</p>
         </header>
@@ -186,13 +200,12 @@
         };
 
         const normalizeImageUrl = (url, title) => {
-            const photos = getPhotosArray(url, title);
-            let urlToProcess = photos[0];
-            if (urlToProcess.includes("drive.google.com")) {
-                const id = urlToProcess.match(/id=([^&]+)/)?.[1] || urlToProcess.match(/\/d\/([^/]+)/)?.[1];
-                return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1200` : urlToProcess;
+            if (!url) return `https://placehold.co/800x600/f1f5f9/64748b?text=${encodeURIComponent(title || 'Image')}`;
+            if (url.includes("drive.google.com")) {
+                const id = url.match(/id=([^&]+)/)?.[1] || url.match(/\/d\/([^/]+)/)?.[1];
+                return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1200` : url;
             }
-            return urlToProcess;
+            return url;
         };
 
         const isNewProduct = (date) => {
@@ -207,6 +220,26 @@
             return 'bg-emerald-50 text-emerald-600 border-emerald-100';
         };
 
+        // Fonction pour changer l'image d'une carte sans ouvrir la modale
+        window.changeCardImage = (event, productId, photoIdx) => {
+            event.stopPropagation();
+            const product = products.find(p => p.titre === productId);
+            if (!product) return;
+            
+            const photos = getPhotosArray(product.photo_url, product.titre);
+            const imgEl = document.getElementById(`img-${productId.replace(/\s+/g, '-')}`);
+            if (imgEl) {
+                imgEl.src = normalizeImageUrl(photos[photoIdx], product.titre);
+            }
+
+            // Mettre à jour les points
+            const dotContainer = event.target.parentElement;
+            Array.from(dotContainer.children).forEach((dot, idx) => {
+                if (idx === photoIdx) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        };
+
         const renderGrid = (items) => {
             const grid = document.getElementById('productGrid');
             const noRes = document.getElementById('noResult');
@@ -216,14 +249,27 @@
 
             items.forEach(item => {
                 const isFav = favorites.includes(item.titre);
+                const photos = getPhotosArray(item.photo_url, item.titre);
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm flex flex-col h-full group relative';
                 
+                const titleForId = item.titre.replace(/\s+/g, '-');
                 const titleForJs = item.titre.replace(/'/g, "\\'");
                 
+                // Générer les points de navigation si plusieurs photos
+                let dotsHtml = '';
+                if (photos.length > 1) {
+                    dotsHtml = `<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">`;
+                    photos.forEach((_, idx) => {
+                        dotsHtml += `<div class="img-dot ${idx === 0 ? 'active' : ''}" onclick="changeCardImage(event, '${titleForJs}', ${idx})"></div>`;
+                    });
+                    dotsHtml += `</div>`;
+                }
+
                 card.innerHTML = `
                     <div class="h-72 w-full relative overflow-hidden flex-shrink-0 cursor-pointer" onclick="openModal('${titleForJs}')">
-                        <img src="${normalizeImageUrl(item.photo_url, item.titre)}" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <img id="img-${titleForId}" src="${normalizeImageUrl(photos[0], item.titre)}" class="h-full w-full object-cover transition-all duration-700" loading="lazy">
+                        ${dotsHtml}
                         ${isNewProduct(item.date_ajout) ? `<div class="absolute top-4 left-4"><span class="bg-purple-600 text-white rounded-full text-[9px] font-black uppercase px-3 py-1.5 shadow-lg">Nouveau</span></div>` : ''}
                         <div class="absolute top-4 right-4"><span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase border glass ${getStatusStyles(item.statut)}">${item.statut || 'Disponible'}</span></div>
                     </div>
@@ -253,6 +299,8 @@
             const photos = getPhotosArray(currentItem.photo_url, currentItem.titre);
             const mainImg = document.getElementById('modalImg');
             const gallery = document.getElementById('modalGallery');
+            
+            // On s'assure de réinitialiser à la première photo au chargement de la modale
             mainImg.src = normalizeImageUrl(photos[0], currentItem.titre);
             gallery.innerHTML = '';
             if (photos.length > 1) {
@@ -260,9 +308,9 @@
                 photos.forEach((url, i) => {
                     const thumb = document.createElement('div');
                     thumb.className = `w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 ${i === 0 ? 'thumb-active border-purple-500 shadow-sm' : 'border-transparent shadow-none'}`;
-                    thumb.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+                    thumb.innerHTML = `<img src="${normalizeImageUrl(url, currentItem.titre)}" class="w-full h-full object-cover">`;
                     thumb.onclick = () => {
-                        mainImg.src = url;
+                        mainImg.src = normalizeImageUrl(url, currentItem.titre);
                         Array.from(gallery.children).forEach(c => {
                             c.classList.remove('thumb-active', 'border-purple-500', 'shadow-sm');
                             c.classList.add('border-transparent');
